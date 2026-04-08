@@ -1,5 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
-import { StickyNote, Plus, Home } from "lucide-react";
+import { StickyNote, Plus, Home, LogOut } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { Button } from "@/components/ui/button";
 
 const navItems = [
   { to: "/", label: "Home", icon: Home },
@@ -9,17 +11,16 @@ const navItems = [
 
 const Navbar = () => {
   const { pathname } = useLocation();
+  const { user, signOut } = useAuth();
 
   return (
     <nav className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-4">
-        {/* Brand */}
         <Link to="/" className="flex items-center gap-2 font-heading text-xl font-bold text-primary">
           <StickyNote className="h-6 w-6" />
           Notely
         </Link>
 
-        {/* Links */}
         <div className="flex items-center gap-1">
           {navItems.map(({ to, label, icon: Icon }) => {
             const active = pathname === to;
@@ -38,6 +39,12 @@ const Navbar = () => {
               </Link>
             );
           })}
+          {user && (
+            <Button variant="ghost" size="sm" onClick={signOut} className="ml-2 text-muted-foreground">
+              <LogOut className="h-4 w-4" />
+              <span className="hidden sm:inline ml-1">Logout</span>
+            </Button>
+          )}
         </div>
       </div>
     </nav>

@@ -18,29 +18,35 @@ const EditNote = () => {
 
   useEffect(() => {
     if (!id) return;
-    const note = getNoteById(id);
-    if (!note) {
-      toast.error("Note not found.");
-      navigate("/notes");
-      return;
-    }
-    setTitle(note.title);
-    setContent(note.content);
-    setLoading(false);
+    (async () => {
+      const note = await getNoteById(id);
+      if (!note) {
+        toast.error("Note not found.");
+        navigate("/notes");
+        return;
+      }
+      setTitle(note.title);
+      setContent(note.content);
+      setLoading(false);
+    })();
   }, [id, navigate]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim() || !content.trim()) {
       toast.error("Please fill in both title and content.");
       return;
     }
     setSaving(true);
-    setTimeout(() => {
-      updateNote(id!, title.trim(), content.trim());
+    try {
+      await updateNote(id!, title.trim(), content.trim());
       toast.success("Note updated!");
       navigate("/notes");
-    }, 300);
+    } catch {
+      toast.error("Failed to update note");
+    } finally {
+      setSaving(false);
+    }
   };
 
   if (loading) {
@@ -54,15 +60,10 @@ const EditNote = () => {
   return (
     <div className="mx-auto max-w-2xl px-4 py-10">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
-        <button
-          onClick={() => navigate(-1)}
-          className="mb-6 flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
-        >
+        <button onClick={() => navigate(-1)} className="mb-6 flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground">
           <ArrowLeft className="h-4 w-4" /> Back
         </button>
-
         <h1 className="mb-6 font-heading text-3xl font-bold">Edit Note</h1>
-
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <label htmlFor="title" className="mb-1.5 block text-sm font-medium">Title</label>
@@ -79,10 +80,7 @@ const EditNote = () => {
                 Saving…
               </span>
             ) : (
-              <>
-                <Save className="mr-2 h-4 w-4" />
-                Update Note
-              </>
+              <><Save className="mr-2 h-4 w-4" />Update Note</>
             )}
           </Button>
         </form>
