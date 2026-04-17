@@ -41,6 +41,14 @@ const Navbar = () => {
               </Link>
             );
           })}
+          <button
+            onClick={openChat}
+            className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+            title="Ask Notely AI any question"
+          >
+            <Sparkles className="h-4 w-4 text-primary" />
+            <span className="hidden sm:inline">Ask AI</span>
+          </button>
           {user && (
             <Button variant="ghost" size="sm" onClick={signOut} className="ml-2 text-muted-foreground">
               <LogOut className="h-4 w-4" />
