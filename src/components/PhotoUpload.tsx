@@ -1,7 +1,7 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { ImagePlus, X, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { uploadNotePhoto } from "@/lib/notes";
+import { uploadNotePhoto, getPhotoSignedUrl, deleteNotePhoto } from "@/lib/notes";
 import { toast } from "sonner";
 
 interface PhotoUploadProps {
@@ -11,7 +11,27 @@ interface PhotoUploadProps {
 
 const PhotoUpload = ({ photos, onChange }: PhotoUploadProps) => {
   const [uploading, setUploading] = useState(false);
+  const [previews, setPreviews] = useState<Record<string, string>>({});
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Resolve signed URLs for previews whenever photo paths change
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const next: Record<string, string> = {};
+      await Promise.all(
+        photos.map(async (path) => {
+          try {
+            next[path] = await getPhotoSignedUrl(path);
+          } catch {
+            // ignore
+          }
+        })
+      );
+      if (!cancelled) setPreviews(next);
+    })();
+    return () => { cancelled = true; };
+  }, [photos]);
 
   const handleFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
@@ -27,8 +47,8 @@ const PhotoUpload = ({ photos, onChange }: PhotoUploadProps) => {
           toast.error(`${file.name} is larger than 10MB`);
           continue;
         }
-        const url = await uploadNotePhoto(file);
-        uploaded.push(url);
+        const path = await uploadNotePhoto(file);
+        uploaded.push(path);
       }
       if (uploaded.length) {
         onChange([...photos, ...uploaded]);
@@ -42,8 +62,9 @@ const PhotoUpload = ({ photos, onChange }: PhotoUploadProps) => {
     }
   };
 
-  const removePhoto = (url: string) => {
-    onChange(photos.filter((p) => p !== url));
+  const removePhoto = async (path: string) => {
+    onChange(photos.filter((p) => p !== path));
+    try { await deleteNotePhoto(path); } catch { /* ignore */ }
   };
 
   return (
@@ -71,12 +92,18 @@ const PhotoUpload = ({ photos, onChange }: PhotoUploadProps) => {
 
       {photos.length > 0 && (
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-          {photos.map((url) => (
-            <div key={url} className="group relative aspect-square overflow-hidden rounded-lg border bg-muted">
-              <img src={url} alt="Note attachment" className="h-full w-full object-cover" loading="lazy" />
+          {photos.map((path) => (
+            <div key={path} className="group relative aspect-square overflow-hidden rounded-lg border bg-muted">
+              {previews[path] ? (
+                <img src={previews[path]} alt="Note attachment" className="h-full w-full object-cover" loading="lazy" />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center">
+                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                </div>
+              )}
               <button
                 type="button"
-                onClick={() => removePhoto(url)}
+                onClick={() => removePhoto(path)}
                 className="absolute right-1 top-1 rounded-full bg-background/90 p-1 opacity-0 shadow transition-opacity group-hover:opacity-100"
                 aria-label="Remove photo"
               >

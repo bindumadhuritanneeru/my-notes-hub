@@ -96,7 +96,7 @@ export const sortNotes = (notes: Note[], field: SortField, order: SortOrder): No
   });
 };
 
-/** Upload a photo to storage and return the public URL */
+/** Upload a photo to storage and return its storage path */
 export const uploadNotePhoto = async (file: File): Promise<string> => {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Not authenticated");
@@ -110,8 +110,22 @@ export const uploadNotePhoto = async (file: File): Promise<string> => {
   });
   if (error) throw error;
 
-  const { data } = supabase.storage.from("note-photos").getPublicUrl(path);
-  return data.publicUrl;
+  return path;
+};
+
+/** Generate a short-lived signed URL for a stored photo (owner-only) */
+export const getPhotoSignedUrl = async (path: string, expiresIn = 3600): Promise<string> => {
+  // Backwards compatibility: if an old public URL was stored, return it as-is
+  if (path.startsWith("http")) return path;
+  const { data, error } = await supabase.storage.from("note-photos").createSignedUrl(path, expiresIn);
+  if (error) throw error;
+  return data.signedUrl;
+};
+
+/** Delete a photo from storage */
+export const deleteNotePhoto = async (path: string): Promise<void> => {
+  if (path.startsWith("http")) return; // legacy URL, skip
+  await supabase.storage.from("note-photos").remove([path]);
 };
 
 /** Log user activity */
