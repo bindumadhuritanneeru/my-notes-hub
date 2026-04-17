@@ -1,13 +1,15 @@
 import { Link, useLocation } from "react-router-dom";
-import { StickyNote, Plus, Home, LogOut } from "lucide-react";
+import { StickyNote, Plus, Home, LogOut, Sparkles } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 
 const navItems = [
   { to: "/", label: "Home", icon: Home },
-  { to: "/notes", label: "View Notes", icon: StickyNote },
-  { to: "/create", label: "Create Note", icon: Plus },
+  { to: "/notes", label: "My Notes", icon: StickyNote },
+  { to: "/create", label: "New Note", icon: Plus },
 ];
+
+const openChat = () => window.dispatchEvent(new CustomEvent("notely:open-chat"));
 
 const Navbar = () => {
   const { pathname } = useLocation();
@@ -39,6 +41,14 @@ const Navbar = () => {
               </Link>
             );
           })}
+          <button
+            onClick={openChat}
+            className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+            title="Ask Notely AI any question"
+          >
+            <Sparkles className="h-4 w-4 text-primary" />
+            <span className="hidden sm:inline">Ask AI</span>
+          </button>
           {user && (
             <Button variant="ghost" size="sm" onClick={signOut} className="ml-2 text-muted-foreground">
               <LogOut className="h-4 w-4" />

@@ -14,7 +14,7 @@ const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
 const Chatbot = () => {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([
-    { role: "assistant", content: "Hi! I'm your Notely assistant. Ask me anything or click **Generate Note** to create a note on any topic! ✨" },
+    { role: "assistant", content: "Hi! I'm your Notely assistant 🎓✨\n\nAsk me **anything** — study questions, explanations, problem-solving, general knowledge, or ideas for notes. You can also click **Generate Note from Topic** to save any subject as a note!" },
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -24,6 +24,12 @@ const Chatbot = () => {
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages]);
+
+  useEffect(() => {
+    const openHandler = () => setOpen(true);
+    window.addEventListener("notely:open-chat", openHandler);
+    return () => window.removeEventListener("notely:open-chat", openHandler);
+  }, []);
 
   const streamChat = async (userMessages: Msg[]) => {
     const resp = await fetch(CHAT_URL, {
