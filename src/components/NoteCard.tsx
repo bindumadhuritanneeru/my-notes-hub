@@ -19,6 +19,20 @@ const NoteCard = ({ note, index, onDeleteClick }: NoteCardProps) => {
       transition={{ delay: index * 0.05, duration: 0.3 }}
       className="group relative rounded-xl border bg-card p-5 shadow-sm transition-shadow hover:shadow-md"
     >
+      {note.photos && note.photos.length > 0 && (
+        <div className="mb-3 -mx-1 grid grid-cols-3 gap-1">
+          {note.photos.slice(0, 3).map((url, i) => (
+            <div key={url} className="relative aspect-square overflow-hidden rounded-md bg-muted">
+              <img src={url} alt="" className="h-full w-full object-cover" loading="lazy" />
+              {i === 2 && note.photos.length > 3 && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/50 text-xs font-semibold text-white">
+                  +{note.photos.length - 3}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
       <h3 className="mb-2 font-heading text-lg font-semibold text-card-foreground line-clamp-1">
         {note.title}
       </h3>

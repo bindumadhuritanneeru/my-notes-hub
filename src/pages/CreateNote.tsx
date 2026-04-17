@@ -5,6 +5,7 @@ import { createNote } from "@/lib/notes";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import PhotoUpload from "@/components/PhotoUpload";
 import { toast } from "sonner";
 import { ArrowLeft, Save } from "lucide-react";
 
@@ -12,6 +13,7 @@ const CreateNote = () => {
   const navigate = useNavigate();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [photos, setPhotos] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -22,7 +24,7 @@ const CreateNote = () => {
     }
     setSaving(true);
     try {
-      await createNote(title.trim(), content.trim());
+      await createNote(title.trim(), content.trim(), photos);
       toast.success("Note created!");
       navigate("/notes");
     } catch {
@@ -47,6 +49,10 @@ const CreateNote = () => {
           <div>
             <label htmlFor="content" className="mb-1.5 block text-sm font-medium">Content</label>
             <Textarea id="content" placeholder="Write your note here…" rows={8} value={content} onChange={(e) => setContent(e.target.value)} />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-sm font-medium">Photos</label>
+            <PhotoUpload photos={photos} onChange={setPhotos} />
           </div>
           <Button type="submit" disabled={saving} className="w-full sm:w-auto">
             {saving ? (
