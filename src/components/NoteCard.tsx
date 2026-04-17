@@ -1,6 +1,7 @@
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Trash2, Pencil, Clock } from "lucide-react";
-import { Note } from "@/lib/notes";
+import { Note, getPhotoSignedUrl } from "@/lib/notes";
 import { format } from "date-fns";
 import { Link } from "react-router-dom";
 
@@ -11,6 +12,19 @@ interface NoteCardProps {
 }
 
 const NoteCard = ({ note, index, onDeleteClick }: NoteCardProps) => {
+  const [thumbs, setThumbs] = useState<string[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const visible = (note.photos || []).slice(0, 3);
+    if (visible.length === 0) { setThumbs([]); return; }
+    (async () => {
+      const urls = await Promise.all(visible.map((p) => getPhotoSignedUrl(p).catch(() => "")));
+      if (!cancelled) setThumbs(urls);
+    })();
+    return () => { cancelled = true; };
+  }, [note.photos]);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -19,11 +33,11 @@ const NoteCard = ({ note, index, onDeleteClick }: NoteCardProps) => {
       transition={{ delay: index * 0.05, duration: 0.3 }}
       className="group relative rounded-xl border bg-card p-5 shadow-sm transition-shadow hover:shadow-md"
     >
-      {note.photos && note.photos.length > 0 && (
+      {thumbs.length > 0 && (
         <div className="mb-3 -mx-1 grid grid-cols-3 gap-1">
-          {note.photos.slice(0, 3).map((url, i) => (
-            <div key={url} className="relative aspect-square overflow-hidden rounded-md bg-muted">
-              <img src={url} alt="" className="h-full w-full object-cover" loading="lazy" />
+          {thumbs.map((url, i) => (
+            <div key={i} className="relative aspect-square overflow-hidden rounded-md bg-muted">
+              {url && <img src={url} alt="" className="h-full w-full object-cover" loading="lazy" />}
               {i === 2 && note.photos.length > 3 && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black/50 text-xs font-semibold text-white">
                   +{note.photos.length - 3}
