@@ -26,8 +26,11 @@ const Index = () => {
         <h1 className="mb-3 font-heading text-4xl font-bold tracking-tight sm:text-5xl">
           Welcome to <span className="text-primary">Notely</span>
         </h1>
-        <p className="mb-8 text-lg text-muted-foreground">
+        <p className="mb-6 text-lg text-muted-foreground">
           A simple, beautiful notes app. Create, organize, and manage your thoughts in one place.
+        </p>
+        <p className="mb-8 text-sm text-muted-foreground/90 leading-relaxed">
+          ✍️ Capture ideas with rich text · 📸 Attach photos to remember moments · 🔍 Search & sort instantly · ✨ Generate notes with AI — all securely synced to your account.
         </p>
         <div className="mx-auto mb-8 inline-flex items-center gap-2 rounded-full bg-secondary px-4 py-2 text-sm font-medium text-secondary-foreground">
           <StickyNote className="h-4 w-4" />
