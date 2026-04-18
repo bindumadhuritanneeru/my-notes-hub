@@ -11,6 +11,7 @@ import Index from "./pages/Index";
 import ViewNotes from "./pages/ViewNotes";
 import CreateNote from "./pages/CreateNote";
 import EditNote from "./pages/EditNote";
+import Photos from "./pages/Photos";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,6 +37,7 @@ const ProtectedRoutes = () => {
         <Route path="/notes" element={<ViewNotes />} />
         <Route path="/create" element={<CreateNote />} />
         <Route path="/edit/:id" element={<EditNote />} />
+        <Route path="/photos" element={<Photos />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       <Chatbot />
