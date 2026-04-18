@@ -128,13 +128,40 @@ export const deleteNotePhoto = async (path: string): Promise<void> => {
   await supabase.storage.from("note-photos").remove([path]);
 };
 
-/** Log user activity */
-export const logActivity = async (action: string, details: Record<string, any> = {}) => {
+/** Allowed activity action names */
+const ALLOWED_ACTIONS = new Set([
+  "create_note",
+  "update_note",
+  "delete_note",
+  "chat_message",
+]);
+
+/** Sanitize a value into a primitive safe for JSONB storage */
+const sanitizeValue = (v: unknown): string | number | boolean | null => {
+  if (v === null || v === undefined) return null;
+  if (typeof v === "number" || typeof v === "boolean") return v;
+  if (typeof v === "string") return v.slice(0, 500);
+  return String(v).slice(0, 500);
+};
+
+/** Log user activity with validated/sanitized payload */
+export const logActivity = async (action: string, details: Record<string, unknown> = {}) => {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return;
+
+  // Validate action
+  if (typeof action !== "string" || !ALLOWED_ACTIONS.has(action)) return;
+
+  // Whitelist + sanitize details keys (max 10 keys, primitive values only)
+  const allowedKeys = ["note_id", "title", "message"];
+  const safeDetails: Record<string, string | number | boolean | null> = {};
+  for (const key of allowedKeys) {
+    if (key in details) safeDetails[key] = sanitizeValue(details[key]);
+  }
+
   await supabase.from("user_activities").insert({
     user_id: user.id,
     action,
-    details,
+    details: safeDetails,
   });
 };
