@@ -55,10 +55,7 @@ const Photos = () => {
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
         ) : photos.length === 0 ? (
-          <EmptyState
-            title="No photos yet"
-            description="Add photos when creating or editing a note. They'll appear here."
-          />
+          <EmptyState message="No photos yet" />
         ) : (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
             {photos.map((p, i) => (
