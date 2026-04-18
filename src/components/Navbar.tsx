@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { StickyNote, Plus, Home, LogOut, Sparkles } from "lucide-react";
+import { StickyNote, Plus, Home, LogOut, Sparkles, Images } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 
@@ -7,6 +7,7 @@ const navItems = [
   { to: "/", label: "Home", icon: Home },
   { to: "/notes", label: "My Notes", icon: StickyNote },
   { to: "/create", label: "New Note", icon: Plus },
+  { to: "/photos", label: "Photos", icon: Images },
 ];
 
 const openChat = () => window.dispatchEvent(new CustomEvent("notely:open-chat"));
